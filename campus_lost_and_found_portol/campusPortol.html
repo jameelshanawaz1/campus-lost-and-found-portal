@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Campus Lost & Found Portal</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h2 { color: #2c3e50; }
+    .section { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; }
+    input, select, textarea { width: 100%; margin: 5px 0; padding: 8px; }
+    button { padding: 8px 12px; margin-top: 10px; }
+    .item { border: 1px solid #999; padding: 10px; margin: 5px 0; }
+  </style>
+</head>
+<body>
+  <h1>Campus Lost & Found Portal</h1>
+
+  <!-- User Registration & Login -->
+  <div class="section">
+    <h2>User Registration & Login</h2>
+    <input type="text" id="name" placeholder="Name">
+    <input type="text" id="dept" placeholder="Department">
+    <input type="text" id="contact" placeholder="Contact">
+    <button onclick="registerUser()">Register/Login</button>
+    <p id="userInfo"></p>
+  </div>
+
+  <!-- Post Lost / Found Item -->
+  <div class="section">
+    <h2>Post Lost / Found Item</h2>
+    <input type="text" id="itemName" placeholder="Item Name">
+    <textarea id="itemDesc" placeholder="Description"></textarea>
+    <input type="text" id="itemLoc" placeholder="Location">
+    <select id="itemStatus">
+      <option value="Lost">Lost</option>
+      <option value="Found">Found</option>
+    </select>
+    <button onclick="postItem()">Post Item</button>
+  </div>
+
+  <!-- Browse & Search Items -->
+  <div class="section">
+    <h2>Browse & Search Items</h2>
+    <input type="text" id="searchBox" placeholder="Search items..." onkeyup="searchItems()">
+    <div id="itemsList"></div>
+  </div>
+
+  <!-- Claim Request -->
+  <div class="section">
+    <h2>Claim Request</h2>
+    <p>Click "Claim" on an item to request ownership.</p>
+    <div id="claimsList"></div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div class="section">
+    <h2>Admin Panel</h2>
+    <button onclick="clearItems()">Remove All Posts</button>
+    <button onclick="clearUsers()">Remove All Users</button>
+  </div>
+
+  <script>
+    let users = [];
+    let items = [];
+    let claims = [];
+
+    function registerUser() {
+      const name = document.getElementById('name').value;
+      const dept = document.getElementById('dept').value;
+      const contact = document.getElementById('contact').value;
+      if(name && dept && contact){
+        users.push({name, dept, contact});
+        document.getElementById('userInfo').innerText = "Logged in as: " + name;
+      }
+    }
+
+    function postItem() {
+      const itemName = document.getElementById('itemName').value;
+      const itemDesc = document.getElementById('itemDesc').value;
+      const itemLoc = document.getElementById('itemLoc').value;
+      const itemStatus = document.getElementById('itemStatus').value;
+      if(itemName && itemDesc && itemLoc){
+        items.push({itemName, itemDesc, itemLoc, itemStatus});
+        displayItems(items);
+      }
+    }
+
+    function displayItems(list) {
+      const container = document.getElementById('itemsList');
+      container.innerHTML = "";
+      list.forEach((item, index) => {
+        container.innerHTML += `
+          <div class="item">
+            <strong>${item.itemStatus}:</strong> ${item.itemName}<br>
+            ${item.itemDesc}<br>
+            Location: ${item.itemLoc}<br>
+            <button onclick="claimItem(${index})">Claim</button>
+          </div>`;
+      });
+    }
+
+    function searchItems() {
+      const keyword = document.getElementById('searchBox').value.toLowerCase();
+      const filtered = items.filter(i => i.itemName.toLowerCase().includes(keyword) || i.itemDesc.toLowerCase().includes(keyword));
+      displayItems(filtered);
+    }
+
+    function claimItem(index) {
+      claims.push(items[index]);
+      displayClaims();
+    }
+
+    function displayClaims() {
+      const container = document.getElementById('claimsList');
+      container.innerHTML = "";
+      claims.forEach((item, idx) => {
+        container.innerHTML += `
+          <div class="item">
+            Claim Request: ${item.itemName} (${item.itemStatus})<br>
+            <button onclick="approveClaim(${idx})">Approve</button>
+            <button onclick="rejectClaim(${idx})">Reject</button>
+          </div>`;
+      });
+    }
+
+    function approveClaim(idx) {
+      alert("Claim Approved for " + claims[idx].itemName);
+      claims.splice(idx,1);
+      displayClaims();
+    }
+
+    function rejectClaim(idx) {
+      alert("Claim Rejected for " + claims[idx].itemName);
+      claims.splice(idx,1);
+      displayClaims();
+    }
+
+    function clearItems() {
+      items = [];
+      document.getElementById('itemsList').innerHTML = "";
+    }
+
+    function clearUsers() {
+      users = [];
+      document.getElementById('userInfo').innerText = "";
+    }
+  </script>
+</body>
+</html>
